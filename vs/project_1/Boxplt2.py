@@ -5,7 +5,7 @@ import seaborn as sns
 
 
 
-df= pd.read_csv('c:/UMDFILES/UMD/Summer2025/Summer-2-2025/Project/Credit_Data.csv')
+df= pd.read_csv('Credit_Data.csv')
 g=sns.catplot(x="Ethnicity",
                 y="Rating",
                 data=df, kind="box",
