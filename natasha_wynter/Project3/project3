@@ -1,1 +1,116 @@
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+import os
 
+# Load the dataset
+df = pd.read_csv('student_spending (1).csv')
+
+# Clean column names
+df.columns = df.columns.str.lower().str.strip()
+
+# Keep only relevant spending columns
+spending_cols = [
+    'tuition', 'housing', 'food', 'transportation', 'books_supplies',
+    'entertainment', 'personal_care', 'technology', 'health_wellness', 'miscellaneous'
+]
+
+# Remove missing values
+df = df.dropna(subset=spending_cols)
+
+# ========== SLIDE 1 ==========
+# Total spend per category
+total_spend = df[spending_cols].sum().sort_values(ascending=False)
+plt.figure(figsize=(10, 5))
+sns.barplot(x=total_spend.index, y=total_spend.values, palette="Blues_d")
+plt.title("Where the Money Goes\nHousing and tuition dominate monthly budgets", loc="left", fontsize=14)
+plt.ylabel("Total Spend ($)")
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.savefig("slide1.png")
+plt.show()
+
+# ========== SLIDE 2 ==========
+# Boxplot of individual spending by category
+df_melted = df[spending_cols].melt(var_name="Category", value_name="Amount")
+plt.figure(figsize=(10, 5))
+sns.boxplot(data=df_melted, x="Category", y="Amount", palette="Set3", showfliers=False)
+plt.title("Biggest Per-Student Costs\nSome categories cost more per student", loc="left", fontsize=14)
+plt.ylabel("Amount per Student ($)")
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.savefig("slide2.png")
+plt.show()
+
+# ========== SLIDE 3 (Revised) ==========
+# Frequency of non-zero spend per category
+spend_freq = (df[spending_cols] > 0).sum().sort_values(ascending=False)
+
+plt.figure(figsize=(10, 5))
+sns.barplot(x=spend_freq.index, y=spend_freq.values, palette="YlGnBu")
+plt.title("Everyday Needs vs. One-Time Buys\nFood and housing are frequent expenses tech and health are less common.", 
+          loc="left", fontsize=14)
+plt.ylabel("Number of Students Spending")
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.savefig("slide3.png")
+plt.show()
+
+# ========== SLIDE 4 ==========
+# Grouped spending by year in school
+grouped = df.groupby('year_in_school')[spending_cols].mean().T
+grouped = grouped.loc[grouped.sum(axis=1).sort_values(ascending=False).index]  # sort by total
+grouped = grouped.reset_index().melt(id_vars='index', var_name='Year', value_name='Avg Spend')
+grouped.rename(columns={'index': 'Category'}, inplace=True)
+
+plt.figure(figsize=(12, 6))
+sns.barplot(data=grouped, x="Category", y="Avg Spend", hue="Year", palette="Set2")
+plt.title("Who Spends Differently?\nTuition and housing dominate across years", loc="left", fontsize=14)
+plt.ylabel("Average Spend ($)")
+plt.xticks(rotation=45)
+plt.legend(title="Year", bbox_to_anchor=(1.05, 1), loc="upper left")
+plt.tight_layout()
+plt.savefig("slide4.png")
+plt.show()
+
+# ========== SLIDE 5 (Improved) ==========
+# Bubble chart: average spend vs frequency, with a clear legend
+
+import matplotlib.patches as mpatches
+
+# Define the updated spending columns without tuition
+spending_cols = [
+    'housing', 'food', 'transportation', 'books_supplies',
+    'entertainment', 'personal_care', 'technology',
+    'health_wellness', 'miscellaneous'
+]
+
+# Calculate averages, frequency, and total for bubble sizing
+avg_spend = df[spending_cols].mean()
+spend_count = (df[spending_cols] > 0).sum()
+bubble_size = df[spending_cols].sum() / 10  # Scale for bubble size
+
+# Plot
+plt.figure(figsize=(10, 6))
+scatter = plt.scatter(
+    x=avg_spend,
+    y=spend_count,
+    s=bubble_size,
+    alpha=0.7,
+    c=range(len(spending_cols)),
+    cmap="tab10"
+)
+
+# Create a legend using color patches
+handles = [
+    mpatches.Patch(color=scatter.cmap(scatter.norm(i)), label=category)
+    for i, category in enumerate(spending_cols)
+]
+
+plt.legend(handles=handles, title="Spending Category", bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.title("What’s Worth It?\nPersonal care doesn't exist in college", loc="left", fontsize=14)
+plt.xlabel("Average Spend per Student ($)")
+plt.ylabel("Number of Students Spending")
+plt.tight_layout()
+plt.savefig("slide5.png")
+plt.show()
