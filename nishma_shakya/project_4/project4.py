@@ -63,7 +63,7 @@ fig.update_layout(
     legend_title_text = "School Types",
     legend=dict(
         x=1.0, y=0.9
-    ),
+    )
 )
 
 # adjust axes
