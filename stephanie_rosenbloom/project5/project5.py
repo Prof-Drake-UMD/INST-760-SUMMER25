@@ -6,7 +6,6 @@ from plotly.subplots import make_subplots
 import pandas as pd
 import numpy as np
 
-# Load and prepare data
 df = pd.read_csv('2019.csv')
 
 df.rename(columns={
@@ -20,7 +19,6 @@ df.rename(columns={
     'Perceptions of corruption': 'Perceptions of corruption'
 }, inplace=True)
 
-# Define components and colors
 core_factors = [
     'GDP per capita',
     'Social support', 
@@ -42,11 +40,9 @@ component_colors = {
     'Others': '#A1483D'
 }
 
-# Calculate residual
 df['Residual'] = df['Score'] - df[core_factors].sum(axis=1)
 all_components = core_factors + ['Residual']
 
-# Define component definitions for tooltips
 component_definitions = {
     'GDP per capita': 'GDP per capita: Economic output per person - measures the standard of living and economic prosperity',
     'Social support': 'Social Support: Having someone to count on in times of need - reflects quality of social relationships',
@@ -57,12 +53,9 @@ component_definitions = {
     'Residual': 'Unexplained Factors: Unexplained happiness - factors not captured by the other components'
 }
 
-# Initialize Dash app
 app = dash.Dash(__name__)
 
-# Define the layout
 app.layout = html.Div([
-    # Header
     html.Div([
         html.H1("World Happiness Report 2019", 
                 style={'textAlign': 'center', 'color': '#2c3e50', 'marginBottom': '8px', 'fontSize': '2.2em', 'fontWeight': '600'}),
@@ -76,12 +69,10 @@ app.layout = html.Div([
         'boxShadow': '0 4px 12px rgba(0,0,0,0.1)'
     }),
 
-    # ROW 1 SECTION HEADER
     html.Div([
         html.H2("Take a Broader Look", style={'textAlign': 'center', 'color': '#2c3e50', 'fontSize': '1.4em', 'marginBottom': '5px'}),
     ], style={'marginBottom': '20px'}),
     
-    # ROW 1 FILTERS
     html.Div([
         html.Div([
             html.Label("Select a sample size", style={'fontWeight': 'bold', 'marginRight': '15px', 'fontSize': '14px'}),
@@ -106,9 +97,7 @@ app.layout = html.Div([
         'boxShadow': '0 4px 12px rgba(0,0,0,0.1)'
     }),
     
-    # ROW 1: Three panels
     html.Div([
-        # GRAPH 1: Stacked Bar 
         html.Div([
             html.H3("Factors of Happiness", style={'textAlign': 'center', 'marginBottom': '8px', 'color': '#2c3e50', 'fontSize': '1.1em'}),
             dcc.Graph(id='stacked-bar-chart', style={'height': '550px'})
@@ -121,7 +110,6 @@ app.layout = html.Div([
             'marginRight': '10px'
         }),
         
-        # COMPONENT TOGGLES
         html.Div([
             html.H4("Happiness Factors Filter", style={'textAlign': 'center', 'marginBottom': '8px', 'color': '#2c3e50', 'fontSize': '13px'}),
             html.P("Toggle happiness factors on/off", style={'textAlign': 'center', 'fontSize': '11px', 'color': '#666', 'marginBottom': '12px', 'lineHeight': '1.2'}),
@@ -138,7 +126,6 @@ app.layout = html.Div([
             'justifyContent': 'flex-start'
         }),
         
-        # GRAPH 2: Scatter Plot
         html.Div([
             html.H3("Factor Correlation Analysis", style={'textAlign': 'center', 'marginBottom': '8px', 'color': '#2c3e50', 'fontSize': '1.1em'}),
             html.Div([
@@ -173,12 +160,10 @@ app.layout = html.Div([
         'marginBottom': '40px'
     }),
 
-    # ROW 2 SECTION HEADER
     html.Div([
         html.H2("Take a Closer Look", style={'textAlign': 'center', 'color': '#2c3e50', 'fontSize': '1.4em', 'marginBottom': '5px'}),
     ], style={'marginBottom': '20px'}),
     
-    # ROW 2 FILTERS
     html.Div([
         html.Div([
             html.Label("Select a country to see how it compares to global averages", style={'fontWeight': 'bold', 'marginRight': '15px', 'fontSize': '14px'}),
@@ -196,9 +181,7 @@ app.layout = html.Div([
         'boxShadow': '0 4px 12px rgba(0,0,0,0.1)'
     }),
     
-    # ROW 2: Three graphs
     html.Div([
-        # Radar Chart
         html.Div([
             html.H3("Country Component Profile", style={'textAlign': 'center', 'marginBottom': '8px', 'color': '#2c3e50', 'fontSize': '1.1em'}),
             dcc.Graph(id='radar-chart', style={'height': '450px'})
@@ -211,7 +194,6 @@ app.layout = html.Div([
             'marginRight': '15px'
         }),
         
-        # Country Data Chart
         html.Div([
             html.H3("Detailed Metrics", style={'textAlign': 'center', 'marginBottom': '8px', 'color': '#2c3e50', 'fontSize': '1.1em'}),
             html.Div(id='country-data-chart', style={'height': '430px', 'padding': '5px', 'overflowY': 'auto'})
@@ -224,7 +206,6 @@ app.layout = html.Div([
             'marginRight': '15px'
         }),
         
-        # Comparison Bar Chart
         html.Div([
             html.H3("Factor vs Averages", style={'textAlign': 'center', 'marginBottom': '8px', 'color': '#2c3e50', 'fontSize': '1.1em'}),
             html.Div([
@@ -258,7 +239,6 @@ app.layout = html.Div([
         'marginBottom': '30px'
     }),
     
-    # Store for component selection state
     dcc.Store(id='selected-components', data=all_components)
     
 ], style={
@@ -269,7 +249,6 @@ app.layout = html.Div([
     'backgroundColor': '#f5f5f5'
 })
 
-# Add CSS styling
 app.index_string = '''
 <!DOCTYPE html>
 <html>
@@ -350,7 +329,6 @@ app.index_string = '''
 </html>
 '''
 
-# Callback to populate country dropdown with top 30 countries
 @app.callback(
     Output('country-dropdown', 'options'),
     Input('row1-top-n-dropdown', 'value')
@@ -360,7 +338,6 @@ def update_country_dropdown(top_n):
     return [{'label': f"#{i+1} {country}", 'value': country} 
             for i, country in enumerate(top_30_countries['Country'])]
 
-# Callback to create component toggle buttons
 @app.callback(
     Output('component-toggles', 'children'),
     Input('selected-components', 'data')
@@ -389,7 +366,6 @@ def create_component_toggles(selected_components):
     
     return buttons
 
-# Callback to handle component toggle
 @app.callback(
     Output('selected-components', 'data'),
     [Input({'type': 'component-toggle', 'index': dash.ALL}, 'n_clicks')],
@@ -410,7 +386,6 @@ def toggle_component(n_clicks, selected_components):
     
     return selected_components
 
-# Callback for ROW 1 - Stacked Bar Chart
 @app.callback(
     Output('stacked-bar-chart', 'figure'),
     [Input('row1-top-n-dropdown', 'value'),
@@ -455,7 +430,6 @@ def update_stacked_bar_chart(top_n, selected_components):
     
     return fig
 
-# Callback for ROW 1 - Scatter Plot
 @app.callback(
     Output('scatter-plot', 'figure'),
     [Input('row1-top-n-dropdown', 'value'),
@@ -557,7 +531,6 @@ def update_scatter_plot(top_n, component, selected_components):
     
     return fig
 
-# Callback for ROW 2 - Radar Chart
 @app.callback(
     Output('radar-chart', 'figure'),
     Input('country-dropdown', 'value')
@@ -622,7 +595,6 @@ def update_radar_chart(selected_country):
     
     return fig
 
-# Callback for ROW 2 - Country Data Chart
 @app.callback(
     Output('country-data-chart', 'children'),
     Input('country-dropdown', 'value')
@@ -710,7 +682,6 @@ def update_country_data_chart(selected_country):
         })
     ])
 
-# Callback for ROW 2 - Comparison Bar Chart
 @app.callback(
     Output('comparison-bar-chart', 'figure'),
     [Input('country-dropdown', 'value'),
@@ -751,7 +722,6 @@ def update_comparison_bar_chart(selected_country, selected_factor):
         textposition='auto'
     ))
     
-    # Dynamic title based on selected factor
     factor_display = selected_factor if selected_factor == 'Score' else selected_factor
     
     fig.update_layout(
@@ -774,6 +744,5 @@ def update_comparison_bar_chart(selected_country, selected_factor):
     
     return fig
 
-# Run the app
 if __name__ == '__main__':
     app.run(debug=True)
