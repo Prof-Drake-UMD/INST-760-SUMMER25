@@ -8,8 +8,6 @@ import numpy as np
 # Use the correct path to the CSV file
 df = pd.read_csv("StudentsPerformance.csv")
 
-
-
 df = df.dropna(subset=[
     "math score", "reading score", "writing score",
     "gender", "race/ethnicity", "test preparation course"
@@ -28,8 +26,6 @@ symbol_map = {"female": "circle", "male": "square"}
 app.layout = html.Div(
     style={"maxWidth": "1200px", "margin": "0 auto", "padding": "16px"},
     children=[
-        html.H2("Multidimensional Student Performance — Interactive"),
-        html.P("An interactive recreation of your Project 2 plot with filters and controls."),
 
         # Controls
         html.Div(
@@ -180,6 +176,4 @@ def update_plot(races, preps, genders, math_rng, read_rng, size_max):
     return fig
 
 if __name__ == "__main__":
-    app.run(debug=True, host="127.0.0.1", port=5500)
-
-
+    app.run(debug=True, host="0.0.0.0", port=5000)
